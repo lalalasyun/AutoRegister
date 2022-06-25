@@ -12,12 +12,13 @@ const jquery = require('jquery');
 const $ = jquery(dom.window);
 
 var id = "", pass = "", token = "", userId = "";
-var isLoad = false;
 
 
 let tray = null;  // GC でトレイアイコンが消えないようにする
 
+var nowDay; //今日の日付
 var isPlay = false;
+var isLoad = false;
 var hour = 6;
 
 const doubleboot = electron.app.requestSingleInstanceLock();
@@ -51,7 +52,7 @@ function loadEvent() {
 
         var now = new Date();
         var h = now.getHours();
-        var nowDay = now.getDate();
+        nowDay = now.getDate();
         getDay = json['result'][0]['date'].split(/[-T:]/)[2];
 
         //今日の登録がされていない時に登録する
@@ -77,7 +78,13 @@ function loadEvent() {
 
   setInterval(function () {
     var now = new Date();
-    var h = now.getHours();
+    const h = now.getHours();
+    const d = now.getDate();
+
+    if(d != nowDay){
+      isPlay = false;
+      nowDay = d;
+    }
 
     if (h == hour && !isPlay) {
       $.ajax({
@@ -98,9 +105,6 @@ function loadEvent() {
           isPlay = true;
         }
       });
-    }
-    if (h == hour + 2) {
-      isPlay = false;
     }
 
   }, 60000);//1分起き
